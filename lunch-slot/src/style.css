@@ -1,0 +1,294 @@
+
+/* --- 全局與背景設定 --- */
+body {
+    background: radial-gradient(circle at center, #e2e2e2, #9b9b9b);
+    font-family: 'Arial Black', 'Microsoft JhengHei', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    perspective: 1000px;
+    overflow: hidden; /* 防止拉桿轉動時出現卷軸 */
+}
+
+.main-stage {
+    position: relative;
+    padding-bottom: 50px;
+}
+
+/* --- 核心：鍍鉻金屬材質通用類別 --- */
+.chrome-panel {
+    background: linear-gradient(to right, 
+        #8e9eab 0%, 
+        #eef2f3 25%, 
+        #d1d1d1 50%, 
+        #eef2f3 75%, 
+        #8e9eab 100%);
+    border: 1px solid #e6e6e6;
+    box-shadow: 
+        inset 0 0 5px rgba(255,255,255,0.8),
+        inset 0 0 15px rgba(0,0,0,0.2),
+        0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+  background: linear-gradient(to right, #ccc, #fff, #ccc);
+  
+}
+
+/* --- 機器主體結構 --- */
+.chrome-machine {
+    width: 380px;
+    position: relative;
+    border-radius: 10px 10px 10px 10px;
+    border: 4px solid #bbbbbb;
+    box-shadow: 
+        0 0 0 8px #f3f3f3, 
+        0 15px 50px rgba(0,0,0,0.8);
+    background: #333;
+}
+
+/* 1. Header 區域 */
+.machine-header {
+    padding: 15px;
+    text-align: center;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: 2px;
+}
+
+.machine-header h1 {
+    margin: 0;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0px #fff, -1px -1px 0px #aaa;
+}
+
+/* 2. 螢幕與燈光區域 */
+.screen-section {
+    padding: 15px;
+    margin-bottom: 2px;
+    background: linear-gradient(to right, #d4af37, #f9e6a2, #d4af37);
+    box-shadow: inset 0 0 20px #ffd700; 
+}
+
+.marquee-lights {
+    border: 4px dotted #fff; 
+    padding: 5px;
+    box-shadow: 0 0 15px #ffd700, inset 0 0 10px #ffd700;
+    background: #917c46;
+    transition: all 0.1s;
+}
+
+.reels-window-inset {
+    background: #e6e6e6;
+    height: 120px;
+    box-shadow: inset 0 5px 20px rgba(0,0,0,0.8);
+    border: 3px solid #444;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.slot-text { color: #222; font-size: 1.4rem; font-weight: bold; }
+.slot-subtext { color: #555; font-size: 1rem; }
+
+/* 3. 格柵區域 */
+.grille-section {
+    height: 50px;
+    margin-bottom: 2px;
+    padding: 5px 15px;
+}
+.grille-lines {
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg, #555, #555 2px, #ccc 4px, #ccc 6px
+    );
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* 4. 底部控制面板區域 */
+.control-panel {
+    padding: 20px;
+    border-radius: 0 0 6px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.4);
+}
+
+/* --- 金屬按鈕 --- */
+.metal-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #333;
+    background: linear-gradient(to bottom, #f2f2f2 0%, #d4d4d4 50%, #aaaaaa 100%);
+    box-shadow: 
+        0 2px 3px rgba(0,0,0,0.3),
+        inset 0 2px 2px rgba(255,255,255,0.8),
+        inset 0 -2px 2px rgba(0,0,0,0.3);
+    border: 1px solid #999;
+    transition: all 0.1s;
+}
+
+.metal-btn:active {
+    background: linear-gradient(to bottom, #aaaaaa 0%, #d4d4d4 100%);
+    transform: translateY(2px);
+}
+.metal-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* 方形分類按鈕 */
+.square-btn {
+    width: 60px; height: 60px; margin-right: 10px;
+    border-radius: 4px; font-size: 0.9rem;
+}
+/* Start 按鈕 */
+.spin-bar-btn {
+    height: 60px; width: 80px;
+    border-radius: 4px; font-size: 1rem;
+}
+/* Start 按鈕啟用狀態 (JS控制) */
+.active-spin {
+    color: #000;
+    box-shadow: 0 0 10px #4cc9f0;
+    border-color: #4cc9f0;
+}
+
+/* --- 右側拉桿 (修正版：結構與動畫) --- */
+.lever-container {
+    position: absolute;
+    right: -45px; top: 100px;
+    width: 40px; height: 200px;
+    z-index: -1;
+}
+
+.lever-base {
+    width: 25px; height: 40px;
+    border-radius: 4px 4px 4px 4px;
+    background: #888;
+    /*border: 2px solid #555;*/
+    position: absolute; left: 0; top: 50%;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    background: linear-gradient(to right, #ccc, #fff, #ccc);
+}
+
+.lever-arm {
+    width: 10px; height: 150px;
+    background: linear-gradient(to right, #ccc, #fff, #ccc);
+    position: absolute; left: -6px; top: -80px;
+    
+    /* 初始狀態 */
+    transform: rotate(18deg);
+    transform-origin: bottom center; /* 支點在底部 */
+    border-radius: 5px;
+    /*border: 1px solid #777;*/
+    transform-style: preserve-3d;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    
+    /* 關鍵：回彈時使用貝茲曲線製造彈性 */
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.lever-knob {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #fff, #ccc, #555);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    
+    /* 讓球體相對於手臂定位 */
+    position: absolute;
+    top: -25px; 
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 拉桿被觸發時的狀態 (由 JS 加上 class active) */
+.lever-container.active .lever-arm {
+    transform: rotate(70deg); /* 往下壓 */
+    transition: transform 0.2s ease-in; /* 下壓速度快 */
+}
+
+/* 機台底部反射 */
+.machine-base-reflection {
+    height: 150px; width: 380px;
+    background: linear-gradient(to bottom, rgba(204,204,204,0.5) 0%, rgba(255,255,255,0) 80%);
+    transform: perspective(500px) rotateX(60deg) translateY(-20px);
+    filter: blur(10px);
+    z-index: -2;
+}
+
+/* --- 結果卡片 --- */
+.result-card {
+    position: absolute; top: 20%; left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    background: #fff;
+    padding: 20px;
+    /*border: 3px solid #333;*/
+    box-shadow: 0 20px 30px rgba(0,0,0,0.8);
+    text-align: center;
+    z-index: 100;
+    border-radius: 8px 8px 8px 8px;
+    background: linear-gradient(to right, #ccc, #fff, #ccc);
+}
+.hidden { display: none; }
+.highlight { color: #d9534f; font-weight: bold; }
+.map-btn, .close-btn {
+    display: inline-block; margin: 10px 5px; padding: 8px 15px;
+    background: #333; color: #fff;
+    border-radius: 4px 4px 4px 4px;
+    text-decoration: none; border: none; cursor: pointer;
+}
+
+/* --- 燈泡閃爍動畫 --- */
+@keyframes flash {
+    0% { background: #917c46; box-shadow: 0 0 15px #ffd700; border-color: #fff; }
+    50% { background: #b8860b; box-shadow: 0 0 30px #ff4500; border-color: #ffff00; }
+    100% { background: #917c46; box-shadow: 0 0 15px #ffd700; border-color: #fff; }
+}
+
+.lights-blinking {
+    animation: flash 0.1s infinite;
+}
+
+/* --- 新增：文字捲動仿拉霸效果 --- */
+
+/* 1. 定義滾動動畫 */
+@keyframes slot-roll {
+    0% {
+        transform: translateY(-100%); /* 從上方進場 */
+        opacity: 0;
+        filter: blur(5px); /* 進場模糊 */
+    }
+    30% {
+        opacity: 1;
+        filter: blur(0); /* 中間清晰 */
+    }
+    100% {
+        transform: translateY(100%); /* 往下方出場 */
+        opacity: 0;
+        filter: blur(5px); /* 出場模糊 */
+    }
+}
+
+/* 2. 啟動動畫的 Class */
+.text-rolling {
+    /* 0.1秒跑完一次循環，無限重複，製造高速轉動感 */
+    animation: slot-roll 0.1s linear infinite; 
+    display: block; /* 確保動畫能作用 */
+}
+
+/* 3. 優化顯示視窗 (防止文字滾出去時被看到) */
+.reels-window-inset {
+    /* 確保這行存在，這會把跑出格子的文字切掉 */
+    overflow: hidden; 
+    position: relative;
+}
