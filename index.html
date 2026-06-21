@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Lunch Slot </title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -18,29 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="main-stage">
         <div class="chrome-machine">
-            
-            <div class="machine-header chrome-panel">
+
+            <div class="machine-header">
                 <h1>今天吃什麼</h1>
             </div>
 
-            <div class="screen-section chrome-panel">
-                <div class="marquee-lights">
-                    <div class="reels-window-inset">
-                        <div id="restaurant-name" class="slot-text">請先選擇分類</div>
-                        <div id="dish-name" class="slot-subtext"></div>
+            <div class="screen-section">
+                <div class="display-frame-outer">
+                    <div class="marquee-lights">
+                        <div class="reels-window-inset">
+                            <div class="reel-column reel-side-col">
+                                <span class="reel-deco">✦</span>
+                            </div>
+                            <div class="reel-column reel-main-col">
+                                <div id="restaurant-name" class="slot-text">請先選擇分類</div>
+                                <div id="dish-name" class="slot-subtext"></div>
+                            </div>
+                            <div class="reel-column reel-side-col">
+                                <span class="reel-deco">✦</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="grille-section chrome-panel">
-                <div class="grille-lines"></div>
-            </div>
-
-            <div class="control-panel chrome-panel">
-              <div class="category-selectors">
+            <div class="control-panel">
+                <div class="category-selectors">
                     <button class="metal-btn square-btn" onclick="selectCategory('restaurant')">
                         <span class="btn-text">餐廳</span>
                     </button>
@@ -52,10 +46,14 @@
                     </button>
                 </div>
                 <div class="spin-activator">
-                     <button id="spin-btn" class="metal-btn spin-bar-btn" disabled onclick="startSpin()">
-                        Start
-                     </button>
+                    <button id="spin-btn" class="metal-btn spin-bar-btn" disabled onclick="startSpin()">
+                        SPIN
+                    </button>
                 </div>
+            </div>
+
+            <div class="coin-slot-panel">
+                <div class="coin-slot"></div>
             </div>
 
             <div class="lever-container">
@@ -65,21 +63,18 @@
                 </div>
             </div>
 
-        </div> <div class="machine-base-reflection"></div>
+        </div>
+
+        <div class="machine-base-reflection"></div>
 
         <div id="result-card" class="result-card hidden">
-             <h2 id="final-name">餐廳名稱</h2>
-             <p>招牌：<span id="final-dish" class="highlight">菜色</span></p>
-             <a id="final-link" href="#" target="_blank" class="map-btn">📍 導航</a>
-             <button onclick="closeCard()" class="close-btn">關閉</button>
+            <h2 id="final-name">餐廳名稱</h2>
+            <p>招牌：<span id="final-dish" class="highlight">菜色</span></p>
+            <a id="final-link" href="#" target="_blank" class="map-btn">📍 導航</a>
+            <button onclick="closeCard()" class="close-btn">關閉</button>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-</html>
-    <script  src="./script.js"></script>
-
-  </body>
-  
 </html>

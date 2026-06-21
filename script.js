@@ -224,14 +224,12 @@ function selectCategory(category) {
     spinBtn.disabled = false;
     spinBtn.classList.add('active-spin'); 
 
-    // 按鈕狀態切換 (Neumorphism 風格)
+    // 按鈕狀態切換
     catBtns.forEach(btn => {
         if (btn.getAttribute('onclick').includes(category)) {
-            btn.classList.add('active-category'); 
-            btn.style.boxShadow = "inset -3px -3px 7px #FFFFFF, inset 3px 3px 7px #AEAEC0"; 
+            btn.classList.add('active-category');
         } else {
             btn.classList.remove('active-category');
-            btn.style.boxShadow = ""; 
         }
     });
 }
