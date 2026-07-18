@@ -1,18 +1,15 @@
 /* ============================================================
    Fubon A25 Lunch Slot — 主視覺（像素大樓拉霸機）
-   做法：像素圖當機台本體，鎖 1802:872 比例置中，
-        overlay（reel／狀態／按鈕 hotspot）以 % 定位跟著縮放。
-        圖裡已畫好按鈕，這裡只疊透明 hotspot + reel 文字。
+   - 機台本體＝CSS 背景圖，依 orientation 切換橫式／直式兩張圖
+   - overlay（reel／狀態／按鈕 hotspot）以 % 定位，座標各自依方向覆蓋
+   - 圖裡已畫好按鈕，這裡只疊透明 hotspot + reel 文字
    ============================================================ */
 
 :root {
-    --sky:    #2f97e6;   /* 天空藍 */
-    --grass:  #4fb64a;   /* 草地綠 */
-    --cream:  #f3ecd6;   /* 米色螢幕 */
-    --ink:    #2a2118;   /* 螢幕深字 */
-    --amber:  #ffb703;   /* 招牌金 */
+    --sky:   #2f97e6;
+    --grass: #4fb64a;
+    --ink:   #2a2118;   /* 螢幕深字 */
 
-    /* 像素風字體：CJK 用系統字，維持清晰 */
     --font: "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
     --font-num: "Courier New", ui-monospace, monospace;
 }
@@ -35,12 +32,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 後備漸層（背景圖載入前）：天空藍 → 草地綠 */
     background: linear-gradient(180deg, var(--sky) 0%, #7ec6f0 55%, var(--grass) 100%);
     overflow: hidden;
 }
 
-/* 背景層：同圖模糊放大，補滿寬螢幕上下 */
+/* 背景層：同圖模糊放大補滿留白 */
 .backdrop {
     position: absolute;
     inset: -6%;
@@ -50,26 +46,19 @@ body {
     z-index: 0;
 }
 
-/* 機台本體：鎖原圖比例，寬螢幕以寬為準塞滿 */
+/* ===== 機台本體：橫式為預設 ===== */
 .machine {
     position: relative;
     z-index: 1;
     aspect-ratio: 1802 / 872;
-    width: min(100vw, calc((100vh - 0px) * 1802 / 872));
     width: min(100vw, calc(100dvh * 1802 / 872));
     max-height: 100dvh;
+    background: url("assets/a25-slot.png") center center / contain no-repeat;
+    image-rendering: pixelated;
     filter: drop-shadow(0 18px 40px rgba(20,40,60,0.35));
 }
 
-.machine-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    image-rendering: pixelated;   /* 放大保留像素邊緣 */
-}
-
-/* ===== 上排視窗文字（覆蓋圖裡的窗）===== */
+/* ===== 上排視窗文字（橫式）===== */
 .win {
     position: absolute;
     display: flex;
@@ -88,13 +77,12 @@ body {
     font-size: clamp(.5rem, 1.3vw, .95rem);
     color: #7fe0ff; text-shadow: 0 0 6px rgba(80,200,255,.6), 0 1px 1px #000;
 }
-/* 候選家數放中間那個空窗，別跟圖裡畫死的「0」打架 */
 .win-count {
     left: 42%; top: 33.4%; width: 21%; height: 5.4%;
     font-size: clamp(.6rem, 1.6vw, 1.15rem);
 }
 
-/* ===== 米色主螢幕：reel 顯示區 ===== */
+/* ===== 米色主螢幕：reel 顯示區（橫式）===== */
 .board {
     position: absolute;
     left: 37%; top: 40%;
@@ -106,7 +94,7 @@ body {
     text-align: center;
     color: var(--ink);
     padding: 0 1%;
-    pointer-events: none;   /* 不擋下面的按鈕 hotspot */
+    pointer-events: none;
     overflow: hidden;
 }
 .reel-name {
@@ -145,21 +133,14 @@ body {
 .go[hidden] { display: none; }
 
 /* reel 快閃／落定動畫 */
-.reel-name.flick {
-    animation: flick var(--d, 120ms) linear;
-    opacity: .9;
-}
+.reel-name.flick { animation: flick var(--d, 120ms) linear; opacity: .9; }
 @keyframes flick {
     0%   { transform: translateY(-40%); opacity: 0; filter: blur(1px); }
     100% { transform: translateY(0);    opacity: 1; filter: blur(0); }
 }
-.reel-name.landed {
-    animation: landPop .35s cubic-bezier(.2,1.4,.4,1);
-}
+.reel-name.landed { animation: landPop .35s cubic-bezier(.2,1.4,.4,1); }
 @keyframes landPop {
-    0%   { transform: scale(.7); }
-    60%  { transform: scale(1.12); }
-    100% { transform: scale(1); }
+    0% { transform: scale(.7); } 60% { transform: scale(1.12); } 100% { transform: scale(1); }
 }
 .board.is-spinning .reel-name { color: #b5561d; }
 .board.is-done     .reel-name { color: #b0000f; }
@@ -167,41 +148,67 @@ body {
 /* ===== 透明 hotspot ===== */
 .hot {
     position: absolute;
-    border: 0;
-    margin: 0;
-    padding: 0;
+    border: 0; margin: 0; padding: 0;
     background: transparent;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    /* 疊在圖裡按鈕上，靠下壓感回饋 */
     transition: transform .06s ease, filter .1s ease;
 }
 .hot:active { transform: translateY(1px) scale(.98); }
 .hot:focus-visible { outline: 2px solid #7fe0ff; outline-offset: 1px; }
 .hot:disabled { cursor: default; }
 
-/* 選中類別：畫一圈金色高亮 */
 .cat.active {
     box-shadow: 0 0 0 3px rgba(255,183,3,.9), 0 0 14px 3px rgba(255,183,3,.6);
     border-radius: 8px;
 }
-/* START 可按時微微發光呼吸 */
-.spin:not(:disabled) {
-    animation: breathe 1.6s ease-in-out infinite;
-    border-radius: 8px;
-}
+.spin:not(:disabled) { animation: breathe 1.6s ease-in-out infinite; border-radius: 8px; }
 @keyframes breathe {
     0%,100% { box-shadow: 0 0 0 0 rgba(120,220,120,0); }
     50%     { box-shadow: 0 0 14px 3px rgba(120,220,120,.55); }
 }
 .lever:hover { filter: brightness(1.05); }
 
-/* ===== 對位除錯模式：網址加 ?align 顯示 hotspot 邊框 ===== */
-body.align .hot   { background: rgba(255,0,0,.28); outline: 1px solid #f00; }
-body.align .board { background: rgba(0,180,255,.18); outline: 1px solid #09f; }
-body.align .win   { background: rgba(0,255,0,.28);  outline: 1px solid #0a0; }
+/* ===== hotspot 座標：橫式 ===== */
+.cat[data-cat="restaurant"] { left: 37%;   top: 61.5%; width: 7.2%; height: 8%; }
+.cat[data-cat="streetfood"] { left: 44.8%; top: 61.5%; width: 6%;   height: 8%; }
+.cat[data-cat="dessert"]    { left: 51.2%; top: 61.5%; width: 6%;   height: 8%; }
+.spin                       { left: 59.3%; top: 61.5%; width: 7.5%; height: 8%; }
+.lever                      { left: 74%;   top: 35%;   width: 7%;   height: 30%; }
 
-/* 直式／窄螢幕：機台以寬塞滿，上下留背景 */
-@media (max-aspect-ratio: 1802/872) {
-    .machine { width: 100vw; height: auto; }
+/* ============================================================
+   直式（手機）：換直式圖 + 整組座標覆蓋
+   ============================================================ */
+@media (orientation: portrait) {
+    .backdrop { background-image: url("assets/a25-slot-portrait.png"); }
+
+    .machine {
+        aspect-ratio: 768 / 1376;
+        width: min(100vw, calc(100dvh * 768 / 1376));
+        background-image: url("assets/a25-slot-portrait.png");
+    }
+
+    /* 直式沒有上排窗：status 藏起，候選數用深字放米色螢幕頂內側 */
+    .win-status { display: none; }
+    .win-count {
+        left: 25%; top: 34.5%; width: 50%; height: 3.6%;
+        font-size: clamp(.7rem, 3vw, 1.15rem);
+        color: var(--ink); text-shadow: none;
+        justify-content: center;
+    }
+
+    /* 米色 reel 區 */
+    .board { left: 25%; top: 38.5%; width: 50%; height: 22.5%; }
+    .reel-name { font-size: clamp(1.1rem, 5.6vw, 2.6rem); }
+    .reel-dish { font-size: clamp(.8rem, 3.4vw, 1.5rem); }
+    .reel-note { font-size: clamp(.65rem, 2.6vw, 1.1rem); }
+    .go        { font-size: clamp(.7rem, 3vw, 1.15rem); }
+
+    /* 按鈕列（底部）*/
+    .cat[data-cat="restaurant"] { left: 16%;   top: 72%; width: 15%;   height: 6.8%; }
+    .cat[data-cat="streetfood"] { left: 32%;   top: 72%; width: 11.5%; height: 6.8%; }
+    .cat[data-cat="dessert"]    { left: 45.5%; top: 72%; width: 12%;   height: 6.8%; }
+    .spin                       { left: 59%;   top: 72%; width: 16.5%; height: 6.8%; }
+    /* 紅色拉桿（右側）*/
+    .lever                      { left: 83%;   top: 52%; width: 13%;   height: 26%; }
 }
