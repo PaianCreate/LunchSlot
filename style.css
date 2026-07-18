@@ -191,18 +191,21 @@ body {
     /* 直式沒有上排窗：status 藏起，候選數用深字放米色螢幕頂內側 */
     .win-status { display: none; }
     .win-count {
-        left: 25%; top: 34.5%; width: 50%; height: 3.6%;
-        font-size: clamp(.7rem, 3vw, 1.15rem);
+        left: 24%; top: 33.8%; width: 52%; height: 3.2%;
+        font-size: clamp(.62rem, 2.6vw, 1.05rem);
         color: var(--ink); text-shadow: none;
         justify-content: center;
     }
 
-    /* 米色 reel 區 */
-    .board { left: 25%; top: 38.5%; width: 50%; height: 22.5%; }
-    .reel-name { font-size: clamp(1.1rem, 5.6vw, 2.6rem); }
-    .reel-dish { font-size: clamp(.8rem, 3.4vw, 1.5rem); }
-    .reel-note { font-size: clamp(.65rem, 2.6vw, 1.1rem); }
-    .go        { font-size: clamp(.7rem, 3vw, 1.15rem); }
+    /* 米色 reel 區：吃滿現有螢幕、字縮小避免截斷 */
+    .board {
+        left: 24%; top: 37.2%; width: 52%; height: 24.5%;
+        justify-content: center; gap: .1em;
+    }
+    .reel-name { font-size: clamp(.85rem, 4.4vw, 1.95rem); line-height: 1.05; }
+    .reel-dish { margin-top: .3em; font-size: clamp(.68rem, 3vw, 1.25rem); }
+    .reel-note { margin-top: .2em; font-size: clamp(.58rem, 2.3vw, 1rem); line-height: 1.25; }
+    .go        { margin-top: .35em; font-size: clamp(.62rem, 2.6vw, 1.05rem); padding: .18em .6em; }
 
     /* 按鈕列（底部）*/
     .cat[data-cat="restaurant"] { left: 16%;   top: 72%; width: 15%;   height: 6.8%; }
