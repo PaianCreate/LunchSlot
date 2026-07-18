@@ -1,293 +1,207 @@
-/* --- 全局與背景設定 --- */
+/* ============================================================
+   Fubon A25 Lunch Slot — 主視覺（像素大樓拉霸機）
+   做法：像素圖當機台本體，鎖 1802:872 比例置中，
+        overlay（reel／狀態／按鈕 hotspot）以 % 定位跟著縮放。
+        圖裡已畫好按鈕，這裡只疊透明 hotspot + reel 文字。
+   ============================================================ */
+
+:root {
+    --sky:    #2f97e6;   /* 天空藍 */
+    --grass:  #4fb64a;   /* 草地綠 */
+    --cream:  #f3ecd6;   /* 米色螢幕 */
+    --ink:    #2a2118;   /* 螢幕深字 */
+    --amber:  #ffb703;   /* 招牌金 */
+
+    /* 像素風字體：CJK 用系統字，維持清晰 */
+    --font: "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    --font-num: "Courier New", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+
 body {
-    background: radial-gradient(circle at center, #e2e2e2, #9b9b9b);
-    font-family: 'Arial Black', 'Microsoft JhengHei', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    perspective: 1000px;
-    overflow: hidden; /* 防止拉桿轉動時出現卷軸 */
-}
-
-.main-stage {
-    position: relative;
-    padding-bottom: 50px;
-}
-
-/* --- 核心：鍍鉻金屬材質通用類別 --- */
-.chrome-panel {
-    background: linear-gradient(to right, 
-        #8e9eab 0%, 
-        #eef2f3 25%, 
-        #d1d1d1 50%, 
-        #eef2f3 75%, 
-        #8e9eab 100%);
-    border: 1px solid #e6e6e6;
-    box-shadow: 
-        inset 0 0 5px rgba(255,255,255,0.8),
-        inset 0 0 15px rgba(0,0,0,0.2),
-        0 5px 15px rgba(0,0,0,0.3);
-    position: relative;
-  background: linear-gradient(to right, #ccc, #fff, #ccc);
-  
-}
-
-/* --- 機器主體結構 --- */
-.chrome-machine {
-    width: 380px;
-    position: relative;
-    border-radius: 10px 10px 10px 10px;
-    border: 4px solid #bbbbbb;
-    box-shadow: 
-        0 0 0 8px #f3f3f3, 
-        0 15px 50px rgba(0,0,0,0.8);
-    background: #333;
-}
-
-/* 1. Header 區域 */
-.machine-header {
-    padding: 15px;
-    text-align: center;
-    border-radius: 6px 6px 0 0;
-    margin-bottom: 2px;
-}
-
-.machine-header h1 {
-    margin: 0;
-    color: #333;
-    text-transform: uppercase;
-    font-size: 1.8rem;
-    letter-spacing: 2px;
-    text-shadow: 1px 1px 0px #fff, -1px -1px 0px #aaa;
-}
-
-/* 2. 螢幕與燈光區域 */
-.screen-section {
-    padding: 15px;
-    margin-bottom: 2px;
-    background: linear-gradient(to right, #d4af37, #f9e6a2, #d4af37);
-    box-shadow: inset 0 0 20px #ffd700; 
-}
-
-.marquee-lights {
-    border: 4px dotted #fff; 
-    padding: 5px;
-    box-shadow: 0 0 15px #ffd700, inset 0 0 10px #ffd700;
-    background: #917c46;
-    transition: all 0.1s;
-}
-
-.reels-window-inset {
-    background: #e6e6e6;
-    height: 120px;
-    box-shadow: inset 0 5px 20px rgba(0,0,0,0.8);
-    border: 3px solid #444;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    font-family: var(--font);
+    background: var(--sky);
     overflow: hidden;
 }
 
-.slot-text { color: #222; font-size: 1.4rem; font-weight: bold; }
-.slot-subtext { color: #555; font-size: 1rem; }
-
-/* 3. 格柵區域 */
-.grille-section {
-    height: 50px;
-    margin-bottom: 2px;
-    padding: 5px 15px;
-}
-.grille-lines {
-    height: 100%;
-    background: repeating-linear-gradient(
-        0deg, #555, #555 2px, #ccc 4px, #ccc 6px
-    );
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-}
-
-/* 4. 底部控制面板區域 */
-.control-panel {
-    padding: 20px;
-    border-radius: 0 0 6px 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: inset 0 5px 15px rgba(0,0,0,0.4);
-}
-
-/* --- 金屬按鈕 --- */
-.metal-btn {
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    text-transform: uppercase;
-    font-weight: bold;
-    color: #333;
-    background: linear-gradient(to bottom, #f2f2f2 0%, #d4d4d4 50%, #aaaaaa 100%);
-    box-shadow: 
-        0 2px 3px rgba(0,0,0,0.3),
-        inset 0 2px 2px rgba(255,255,255,0.8),
-        inset 0 -2px 2px rgba(0,0,0,0.3);
-    border: 1px solid #999;
-    transition: all 0.1s;
-}
-
-.metal-btn:active {
-    background: linear-gradient(to bottom, #aaaaaa 0%, #d4d4d4 100%);
-    transform: translateY(2px);
-}
-.metal-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-/* 方形分類按鈕 */
-.square-btn {
-    width: 60px; height: 60px; margin-right: 10px;
-    border-radius: 4px; font-size: 0.9rem;
-}
-/* Start 按鈕 */
-.spin-bar-btn {
-    height: 60px; width: 80px;
-    border-radius: 4px; font-size: 1rem;
-}
-/* Start 按鈕啟用狀態 (JS控制) */
-.active-spin {
-    color: #000;
-    box-shadow: 0 0 10px #4cc9f0;
-    border-color: #4cc9f0;
-}
-
-/* --- 右側拉桿 (修正版：結構與動畫) --- */
-.lever-container {
-    position: absolute;
-    right: -45px; top: 100px;
-    width: 40px; height: 200px;
-    z-index: -1;
-}
-
-.lever-base {
-    width: 25px; height: 40px;
-    border-radius: 4px 4px 4px 4px;
-    background: #888;
-    /*border: 2px solid #555;*/
-    position: absolute; left: 0; top: 50%;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-    background: linear-gradient(to right, #ccc, #fff, #ccc);
-}
-
-.lever-arm {
-    width: 10px; height: 150px;
-    background: linear-gradient(to right, #ccc, #fff, #ccc);
-    position: absolute; left: -6px; top: -80px;
-    
-    /* 初始狀態 */
-    transform: rotate(18deg);
-    transform-origin: bottom center; /* 支點在底部 */
-    border-radius: 5px;
-    /*border: 1px solid #777;*/
-    transform-style: preserve-3d;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-    
-    /* 關鍵：回彈時使用貝茲曲線製造彈性 */
-    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.lever-knob {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #fff, #ccc, #555);
-    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-    
-    /* 讓球體相對於手臂定位 */
-    position: absolute;
-    top: -25px; 
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-/* 拉桿被觸發時的狀態 (由 JS 加上 class active) */
-.lever-container.active .lever-arm {
-    transform: rotate(70deg); /* 往下壓 */
-    transition: transform 0.2s ease-in; /* 下壓速度快 */
-}
-
-/* 機台底部反射 */
-.machine-base-reflection {
-    height: 150px; width: 380px;
-    background: linear-gradient(to bottom, rgba(204,204,204,0.5) 0%, rgba(255,255,255,0) 80%);
-    transform: perspective(500px) rotateX(60deg) translateY(-20px);
-    filter: blur(10px);
-    z-index: -2;
-}
-
-/* --- 結果卡片 --- */
-.result-card {
-    position: absolute; top: 20%; left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    background: #fff;
-    padding: 20px;
-    /*border: 3px solid #333;*/
-    box-shadow: 0 20px 30px rgba(0,0,0,0.8);
-    text-align: center;
-    z-index: 100;
-    border-radius: 8px 8px 8px 8px;
-    background: linear-gradient(to right, #ccc, #fff, #ccc);
-}
-.hidden { display: none; }
-.highlight { color: #d9534f; font-weight: bold; }
-.map-btn, .close-btn {
-    display: inline-block; margin: 10px 5px; padding: 8px 15px;
-    background: #333; color: #fff;
-    border-radius: 4px 4px 4px 4px;
-    text-decoration: none; border: none; cursor: pointer;
-}
-
-/* --- 燈泡閃爍動畫 --- */
-@keyframes flash {
-    0% { background: #917c46; box-shadow: 0 0 15px #ffd700; border-color: #fff; }
-    50% { background: #b8860b; box-shadow: 0 0 30px #ff4500; border-color: #ffff00; }
-    100% { background: #917c46; box-shadow: 0 0 15px #ffd700; border-color: #fff; }
-}
-
-.lights-blinking {
-    animation: flash 0.1s infinite;
-}
-
-/* --- 新增：文字捲動仿拉霸效果 --- */
-
-/* 1. 定義滾動動畫 */
-@keyframes slot-roll {
-    0% {
-        transform: translateY(-100%); /* 從上方進場 */
-        opacity: 0;
-        filter: blur(5px); /* 進場模糊 */
-    }
-    30% {
-        opacity: 1;
-        filter: blur(0); /* 中間清晰 */
-    }
-    100% {
-        transform: translateY(100%); /* 往下方出場 */
-        opacity: 0;
-        filter: blur(5px); /* 出場模糊 */
-    }
-}
-
-/* 2. 啟動動畫的 Class */
-.text-rolling {
-    /* 0.1秒跑完一次循環，無限重複，製造高速轉動感 */
-    animation: slot-roll 0.1s linear infinite; 
-    display: block; /* 確保動畫能作用 */
-}
-
-/* 3. 優化顯示視窗 (防止文字滾出去時被看到) */
-.reels-window-inset {
-    /* 確保這行存在，這會把跑出格子的文字切掉 */
-    overflow: hidden; 
+/* 舞台 */
+.stage {
     position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 後備漸層（背景圖載入前）：天空藍 → 草地綠 */
+    background: linear-gradient(180deg, var(--sky) 0%, #7ec6f0 55%, var(--grass) 100%);
+    overflow: hidden;
+}
+
+/* 背景層：同圖模糊放大，補滿寬螢幕上下 */
+.backdrop {
+    position: absolute;
+    inset: -6%;
+    background: url("assets/a25-slot.png") center center / cover no-repeat;
+    filter: blur(32px) saturate(1.1) brightness(1.02);
+    transform: scale(1.1);
+    z-index: 0;
+}
+
+/* 機台本體：鎖原圖比例，寬螢幕以寬為準塞滿 */
+.machine {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 1802 / 872;
+    width: min(100vw, calc((100vh - 0px) * 1802 / 872));
+    width: min(100vw, calc(100dvh * 1802 / 872));
+    max-height: 100dvh;
+    filter: drop-shadow(0 18px 40px rgba(20,40,60,0.35));
+}
+
+.machine-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;   /* 放大保留像素邊緣 */
+}
+
+/* ===== 上排視窗文字（覆蓋圖裡的窗）===== */
+.win {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffcf4d;
+    font-family: var(--font-num);
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(255,180,40,.6), 0 1px 1px #000;
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: .04em;
+}
+.win-status {
+    left: 35%; top: 33.4%; width: 6.4%; height: 5.4%;
+    font-size: clamp(.5rem, 1.3vw, .95rem);
+    color: #7fe0ff; text-shadow: 0 0 6px rgba(80,200,255,.6), 0 1px 1px #000;
+}
+/* 候選家數放中間那個空窗，別跟圖裡畫死的「0」打架 */
+.win-count {
+    left: 42%; top: 33.4%; width: 21%; height: 5.4%;
+    font-size: clamp(.6rem, 1.6vw, 1.15rem);
+}
+
+/* ===== 米色主螢幕：reel 顯示區 ===== */
+.board {
+    position: absolute;
+    left: 37%; top: 40%;
+    width: 29%; height: 20.5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--ink);
+    padding: 0 1%;
+    pointer-events: none;   /* 不擋下面的按鈕 hotspot */
+    overflow: hidden;
+}
+.reel-name {
+    font-size: clamp(.95rem, 2.8vw, 2.15rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: .01em;
+    max-width: 100%;
+}
+.reel-dish {
+    margin-top: .35em;
+    font-size: clamp(.7rem, 1.8vw, 1.35rem);
+    font-weight: 600;
+    color: #8a5a1e;
+}
+.reel-note {
+    margin-top: .25em;
+    font-size: clamp(.55rem, 1.25vw, .95rem);
+    color: #6b6357;
+    line-height: 1.3;
+}
+.go {
+    margin-top: .5em;
+    pointer-events: auto;
+    display: inline-block;
+    font-size: clamp(.6rem, 1.4vw, 1rem);
+    font-weight: 700;
+    color: #fff;
+    background: #d33;
+    border: 2px solid #7a1616;
+    border-radius: 4px;
+    padding: .2em .7em;
+    text-decoration: none;
+    box-shadow: 0 2px 0 #7a1616;
+}
+.go[hidden] { display: none; }
+
+/* reel 快閃／落定動畫 */
+.reel-name.flick {
+    animation: flick var(--d, 120ms) linear;
+    opacity: .9;
+}
+@keyframes flick {
+    0%   { transform: translateY(-40%); opacity: 0; filter: blur(1px); }
+    100% { transform: translateY(0);    opacity: 1; filter: blur(0); }
+}
+.reel-name.landed {
+    animation: landPop .35s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes landPop {
+    0%   { transform: scale(.7); }
+    60%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+}
+.board.is-spinning .reel-name { color: #b5561d; }
+.board.is-done     .reel-name { color: #b0000f; }
+
+/* ===== 透明 hotspot ===== */
+.hot {
+    position: absolute;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* 疊在圖裡按鈕上，靠下壓感回饋 */
+    transition: transform .06s ease, filter .1s ease;
+}
+.hot:active { transform: translateY(1px) scale(.98); }
+.hot:focus-visible { outline: 2px solid #7fe0ff; outline-offset: 1px; }
+.hot:disabled { cursor: default; }
+
+/* 選中類別：畫一圈金色高亮 */
+.cat.active {
+    box-shadow: 0 0 0 3px rgba(255,183,3,.9), 0 0 14px 3px rgba(255,183,3,.6);
+    border-radius: 8px;
+}
+/* START 可按時微微發光呼吸 */
+.spin:not(:disabled) {
+    animation: breathe 1.6s ease-in-out infinite;
+    border-radius: 8px;
+}
+@keyframes breathe {
+    0%,100% { box-shadow: 0 0 0 0 rgba(120,220,120,0); }
+    50%     { box-shadow: 0 0 14px 3px rgba(120,220,120,.55); }
+}
+.lever:hover { filter: brightness(1.05); }
+
+/* ===== 對位除錯模式：網址加 ?align 顯示 hotspot 邊框 ===== */
+body.align .hot   { background: rgba(255,0,0,.28); outline: 1px solid #f00; }
+body.align .board { background: rgba(0,180,255,.18); outline: 1px solid #09f; }
+body.align .win   { background: rgba(0,255,0,.28);  outline: 1px solid #0a0; }
+
+/* 直式／窄螢幕：機台以寬塞滿，上下留背景 */
+@media (max-aspect-ratio: 1802/872) {
+    .machine { width: 100vw; height: auto; }
 }

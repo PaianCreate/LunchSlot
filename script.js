@@ -176,160 +176,142 @@ const affordableEats = [
 
 
 // ==========================================
-// 程式邏輯控制區
+// 程式邏輯控制區（翻牌看板版）
 // ==========================================
 
-// 全域變數
-let currentCategory = null; 
-let currentList = []; 
+// 類別對應資料表
+const CATEGORIES = {
+    restaurant: { list: diningSpots,        label: "餐廳" },
+    streetfood: { list: affordableEats,     label: "小吃" },
+    dessert:    { list: afternoonTeaShops,  label: "點心" }
+};
 
-// 抓取 DOM 元素
-const nameDisplay = document.getElementById('restaurant-name');
-const dishDisplay = document.getElementById('dish-name');
-const spinBtn = document.getElementById('spin-btn');
-const resultCard = document.getElementById('result-card');
-const catBtns = document.querySelectorAll('.square-btn'); 
+// 可即時調整的參數（想調手感直接改，或在 console 用 window.LS.CFG）
+const CFG = {
+    ticks: 26,       // 滾動總格數（越多滾越久）
+    minDelay: 55,    // 起始每格間隔 ms（越小起頭越快）
+    maxDelay: 260,   // 結尾每格間隔 ms（越大收尾越慢＝越有減速感）
+    ease: 2.3        // 減速曲線指數（越大＝後段煞得越明顯）
+};
 
-// 抓取動畫元素
-const leverContainer = document.querySelector('.lever-container'); 
-const screenSection = document.querySelector('.screen-section'); 
+// DOM
+const reelName = document.getElementById('reel-name');
+const reelDish = document.getElementById('reel-dish');
+const reelNote = document.getElementById('reel-note');
+const statusEl = document.getElementById('status');
+const countEl  = document.getElementById('count');
+const goBtn    = document.getElementById('go');
+const spinBtn  = document.getElementById('spin');
+const board    = document.querySelector('.board');
+const catBtns  = document.querySelectorAll('.cat');
 
-// --- 選擇分類 ---
-function selectCategory(category) {
-    currentCategory = category;
+let currentList = [];
+let spinning = false;
 
-    // 將按鈕的 ID 對應到正確的資料陣列
-    if (category === 'restaurant') {
-        currentList = diningSpots;
-    } else if (category === 'streetfood') { // HTML按鈕寫的是 streetfood
-        currentList = affordableEats;
-    } else if (category === 'dessert') {
-        currentList = afternoonTeaShops;
-    }
+// --- 選類別 ---
+function selectCategory(key) {
+    if (spinning) return;
+    const cat = CATEGORIES[key];
+    if (!cat) return;
 
-    if (!currentList || currentList.length === 0) {
-        console.error("無資料");
-        return;
-    }
+    currentList = cat.list;
 
-    // 更新螢幕文字
-    nameDisplay.innerText = "準備完成";
-    let displayText = "";
-    if (category === 'restaurant') displayText = "類別：餐廳";
-    else if (category === 'streetfood') displayText = "類別：小吃";
-    else if (category === 'dessert') displayText = "類別：點心";
-    dishDisplay.innerText = displayText;
-    
-    // 解鎖 Start 按鈕
+    // 分段選擇器 active 狀態
+    catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === key));
+
+    // 看板進入待抽狀態
+    board.classList.remove('is-done');
+    goBtn.hidden = true;
+    reelName.classList.remove('landed');
+    reelName.innerText = `${cat.label}`;
+    reelDish.innerText = "拉霸開抽";
+    reelNote.innerText = "";
+    statusEl.innerText = "READY";
+    countEl.innerText  = `${currentList.length} 家候選`;   // 中間窗顯示候選家數
+
+    // 解鎖 START（透明 hotspot，不寫文字）
     spinBtn.disabled = false;
-    spinBtn.classList.add('active-spin'); 
-
-    // 按鈕狀態切換 (Neumorphism 風格)
-    catBtns.forEach(btn => {
-        if (btn.getAttribute('onclick').includes(category)) {
-            btn.classList.add('active-category'); 
-            btn.style.boxShadow = "inset -3px -3px 7px #FFFFFF, inset 3px 3px 7px #AEAEC0"; 
-        } else {
-            btn.classList.remove('active-category');
-            btn.style.boxShadow = ""; 
-        }
-    });
 }
 
-// --- 開始轉動 (修改版：加入滾動特效) ---
+// 綁定類別按鈕
+catBtns.forEach(b => b.addEventListener('click', () => selectCategory(b.dataset.cat)));
+
+// --- 抽選 ---
 function startSpin() {
-    if (currentList.length === 0) {
-        alert("請先選擇分類！");
-        return; 
-    }
+    if (spinning || !currentList.length) return;
+    spinning = true;
 
-    // 1. 介面重置
-    resultCard.classList.add('hidden');
-    spinBtn.disabled = true; 
-    spinBtn.classList.remove('active-spin'); 
-    
-    // 2. 拉桿動畫
-    if(leverContainer) {
-        leverContainer.classList.remove('active'); 
-        void leverContainer.offsetWidth; 
-        leverContainer.classList.add('active');
-        setTimeout(() => {
-            leverContainer.classList.remove('active');
-        }, 500);
-    }
+    // 介面重置
+    board.classList.remove('is-done');
+    board.classList.add('is-spinning');
+    goBtn.hidden = true;
+    reelName.classList.remove('landed');
+    reelDish.innerText = "";
+    reelNote.innerText = "";
+    statusEl.innerText = "SPIN";
+    spinBtn.disabled = true;
 
-    // 3. 螢幕邊框閃爍
-    if(screenSection) {
-        screenSection.classList.add('lights-blinking');
-    }
+    // 先決定贏家，最後一格定在它身上
+    const winner = currentList[Math.floor(Math.random() * currentList.length)];
 
-    // --- 新增：文字加入滾動特效 Class ---
-    nameDisplay.classList.add('text-rolling');
+    let i = 0;
+    const tick = () => {
+        const isLast = i >= CFG.ticks - 1;
+        const item = isLast ? winner : currentList[Math.floor(Math.random() * currentList.length)];
 
-    // 4. 轉動邏輯
-    let counter = 0;
-    // 稍微加快切換速度，配合 CSS 的 0.1s 動畫
-    const speed = 100; 
-    const totalSpins = 30; // 約 3 秒
-    
-    const interval = setInterval(() => {
-        const tempIndex = Math.floor(Math.random() * currentList.length);
-        
-        // 這裡只更新文字，視覺上的「滾動感」由 CSS animation 負責
-        nameDisplay.innerText = currentList[tempIndex].name;
-        dishDisplay.innerText = "......"; 
-        
-        counter++;
-        if (counter >= totalSpins) {
-            clearInterval(interval);
-            showResult(); 
+        // 依進度算本格間隔（ease-out 減速）
+        const p = i / CFG.ticks;
+        const delay = CFG.minDelay + (CFG.maxDelay - CFG.minDelay) * Math.pow(p, CFG.ease);
+
+        // 觸發快閃動畫，時長跟著間隔走
+        reelName.innerText = item.name;
+        reelName.style.setProperty('--d', delay + 'ms');
+        reelName.classList.remove('flick');
+        void reelName.offsetWidth; // reflow 重啟動畫
+        reelName.classList.add('flick');
+
+        i++;
+        if (isLast) {
+            setTimeout(() => land(winner), delay);
+        } else {
+            setTimeout(tick, delay);
         }
-    }, speed); 
+    };
+    tick();
 }
 
-// --- 顯示結果 (修改版：移除特效) ---
-function showResult() {
-    // 1. 停止閃爍
-    if(screenSection) {
-        screenSection.classList.remove('lights-blinking');
-    }
+// --- 落定 ---
+function land(winner) {
+    spinning = false;
+    board.classList.remove('is-spinning');
+    board.classList.add('is-done');
 
-    // --- 新增：移除文字滾動特效 Class ---
-    nameDisplay.classList.remove('text-rolling');
+    reelName.innerText = winner.name;
+    reelName.classList.remove('flick');
+    void reelName.offsetWidth;
+    reelName.classList.add('landed');
 
-    // 2. 選出贏家
-    const winnerIndex = Math.floor(Math.random() * currentList.length);
-    const winner = currentList[winnerIndex];
+    reelDish.innerText = winner.dish;
+    reelNote.innerText = winner.notes || "";
+    statusEl.innerText = "WIN!";
 
-    // 3. 顯示最終結果 (這裡可以加一個小小的進場動畫，讓定格更有力)
-    nameDisplay.innerText = winner.name;
-    dishDisplay.innerText = winner.dish;
+    // Google Maps 導航連結（取 notes 第一段當地點提示）
+    const hint = winner.notes ? winner.notes.split('/')[0].trim() : "台北";
+    const query = encodeURIComponent(`${winner.name} ${hint}`);
+    goBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+    goBtn.hidden = false;
 
-    document.getElementById('final-name').innerText = winner.name;
-    document.getElementById('final-dish').innerText = winner.dish;
-
-    // 4. 生成導航連結
-    let locationHint = "台北";
-    if (winner.notes) {
-        locationHint = winner.notes.split('/')[0].trim();
-    }
-    const query = encodeURIComponent(winner.name + " " + locationHint); 
-    const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
-    
-    document.getElementById('final-link').href = mapUrl;
-
-    resultCard.classList.remove('hidden');
-    spinBtn.disabled = false; 
-    spinBtn.classList.add('active-spin'); 
+    // 解鎖 START（可再抽）
+    spinBtn.disabled = false;
 }
 
-// --- 關閉結果卡片 ---
-function closeCard() {
-    const resultCard = document.getElementById('result-card');
-    // 隱藏卡片
-    resultCard.classList.add('hidden');
-    
-    // 額外保險：移除可能殘留的動畫 class (雖然理論上 showResult 會處理，但多做無害)
-    const nameDisplay = document.getElementById('restaurant-name');
-    nameDisplay.classList.remove('text-rolling');
-}
+// START hotspot + 紅色拉桿都能開抽
+spinBtn.addEventListener('click', startSpin);
+const leverEl = document.getElementById('lever');
+if (leverEl) leverEl.addEventListener('click', startSpin);
+
+// 對位除錯模式：網址加 ?align 顯示 hotspot 邊框
+if (location.search.includes('align')) document.body.classList.add('align');
+
+// 對外暴露：即時調參用
+window.LS = { CFG, selectCategory, startSpin };

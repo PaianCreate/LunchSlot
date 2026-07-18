@@ -1,85 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Lunch Slot </title>
-    <link rel="stylesheet" href="./style.css">
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社畜今天吃什麼？</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Fubon A25 Lunch Slot</title>
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
+    <!-- 舞台：滿版藍天草地，中央擺像素大樓拉霸機 -->
+    <div class="stage">
+        <!-- 背景層：同一張圖模糊放大，填滿寬螢幕上下留白 -->
+        <div class="backdrop"></div>
 
-    <div class="main-stage">
-        <div class="chrome-machine">
-            
-            <div class="machine-header chrome-panel">
-                <h1>今天吃什麼</h1>
+        <!-- 機台本體：鎖定 1802:872 比例，overlay 用 % 定位跟著縮放 -->
+        <div class="machine">
+            <img class="machine-img" src="assets/a25-slot.png"
+                 alt="Fubon A25 Lunch Slot 像素大樓拉霸機">
+
+            <!-- ===== 上排視窗（畫在圖裡的 3 個窗）===== -->
+            <!-- 左窗：狀態文字 -->
+            <div class="win win-status" id="status">待命</div>
+            <!-- 中間窗：候選家數 -->
+            <div class="win win-count" id="count"></div>
+
+            <!-- ===== 米色主螢幕：reel 顯示區 ===== -->
+            <div class="board" aria-live="polite">
+                <div class="reel-name" id="reel-name">先選類別</div>
+                <div class="reel-dish" id="reel-dish">餐廳 · 小吃 · 點心</div>
+                <div class="reel-note" id="reel-note"></div>
+                <!-- 導航連結：落定後出現（第二階段做成 pop up）-->
+                <a class="go" id="go" href="#" target="_blank"
+                   rel="noopener" hidden>🗺 導航去</a>
             </div>
 
-            <div class="screen-section chrome-panel">
-                <div class="marquee-lights">
-                    <div class="reels-window-inset">
-                        <div id="restaurant-name" class="slot-text">請先選擇分類</div>
-                        <div id="dish-name" class="slot-subtext"></div>
-                    </div>
-                </div>
-            </div>
+            <!-- ===== 透明 hotspot：疊在畫好的按鈕上 ===== -->
+            <button class="hot cat" data-cat="restaurant" style="left:37%;top:61.5%;width:7.2%;height:8%"  aria-label="餐廳"></button>
+            <button class="hot cat" data-cat="streetfood" style="left:44.8%;top:61.5%;width:6%;height:8%"  aria-label="小吃"></button>
+            <button class="hot cat" data-cat="dessert"    style="left:51.2%;top:61.5%;width:6%;height:8%"  aria-label="點心"></button>
+            <button class="hot spin" id="spin" style="left:59.3%;top:61.5%;width:7.5%;height:8%" disabled aria-label="START 開始抽"></button>
 
-            <div class="grille-section chrome-panel">
-                <div class="grille-lines"></div>
-            </div>
-
-            <div class="control-panel chrome-panel">
-              <div class="category-selectors">
-                    <button class="metal-btn square-btn" onclick="selectCategory('restaurant')">
-                        <span class="btn-text">餐廳</span>
-                    </button>
-                    <button class="metal-btn square-btn" onclick="selectCategory('streetfood')">
-                        <span class="btn-text">小吃</span>
-                    </button>
-                    <button class="metal-btn square-btn" onclick="selectCategory('dessert')">
-                        <span class="btn-text">點心</span>
-                    </button>
-                </div>
-                <div class="spin-activator">
-                     <button id="spin-btn" class="metal-btn spin-bar-btn" disabled onclick="startSpin()">
-                        Start
-                     </button>
-                </div>
-            </div>
-
-            <div class="lever-container">
-                <div class="lever-base"></div>
-                <div class="lever-arm">
-                    <div class="lever-knob"></div>
-                </div>
-            </div>
-
-        </div> <div class="machine-base-reflection"></div>
-
-        <div id="result-card" class="result-card hidden">
-             <h2 id="final-name">餐廳名稱</h2>
-             <p>招牌：<span id="final-dish" class="highlight">菜色</span></p>
-             <a id="final-link" href="#" target="_blank" class="map-btn">📍 導航</a>
-             <button onclick="closeCard()" class="close-btn">關閉</button>
+            <!-- 紅色拉桿 hotspot：拉一下＝開抽 -->
+            <button class="hot lever" id="lever" style="left:74%;top:35%;width:7%;height:30%" aria-label="拉霸開始抽"></button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=4"></script>
 </body>
-</html>
-    <script  src="./script.js"></script>
-
-  </body>
-  
 </html>
