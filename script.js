@@ -227,7 +227,7 @@ function selectCategory(key) {
     reelDish.innerText = "拉霸開抽";
     reelNote.innerText = "";
     statusEl.innerText = "READY";
-    countEl.innerText  = `${currentList.length} 家候選`;   // 中間窗顯示候選家數
+    countEl.innerText  = currentList.length;   // 候選家數（手機版 CSS 會補「家候選」）
 
     // 解鎖 START（透明 hotspot，不寫文字）
     spinBtn.disabled = false;
